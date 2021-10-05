@@ -1,17 +1,34 @@
 "use strict"
 
-const imagens = [
-    "./img/img1_sakura.jpg",
-    "./img/img2_mtFuji.jpg",
-    "./img/img3.jpg",
-    "./img/img4_ponte.jpg",
-    "./img/img5_caminho.jpg",
-    "./img/img6_rua.jpg",
-    "./img/img7_tokyo.jpg",
-    "./img/img8_toquio.jpg"
-]
+const limpar = (elemento) =>{
+    while (elemento.firstChild) {
+        elemento.removeChild(elemento.lastChild)
+    }
+}
 
-const getId = (urlImagem) => urlImagem.split("/")[2].split(".")[0].toLowerCase()
+const pegarImagens = (raca) => fetch(`https://dog.ceo/api/breed/${raca}/images`)
+
+const procurarImagens = async (evento) => {
+    
+    if (evento.key === 'Enter') {
+        const raca = evento.target.value
+        const imagensResponse = await pegarImagens(raca)
+        const imagens = await imagensResponse.json()
+
+        limpar(document.querySelector(".galeria-container"))
+        limpar(document.querySelector(".slide-container"))
+        
+        carregarImagens(imagens.message)
+        carregarSlides(imagens.message)
+    }
+
+}
+
+const getId = (urlImagem) => {
+    const posBarra = urlImagem.lastIndexOf('/') + 1
+    const posPonto = urlImagem.lastIndexOf('.')
+    return urlImagem.substring(posBarra, posPonto)
+}
 
 const criarItem = (urlImagem) => {
     const container = document.querySelector(".galeria-container")
@@ -26,7 +43,6 @@ const criarItem = (urlImagem) => {
     novoLink.innerHTML = `<img src="${urlImagem}" alt=""></img>`
     container.appendChild(novoLink)
 }
-
 
 const criarSlide = (urlImagem, indice, arr) => {
 
@@ -55,9 +71,9 @@ const criarSlide = (urlImagem, indice, arr) => {
 
 }
 
+const carregarImagens = (imagens) => imagens.forEach(criarItem)
+const carregarSlides = (imagens) => imagens.forEach(criarSlide)
 
-const carregarImagens = () => imagens.forEach(criarItem)
-const carregarSlides = () => imagens.forEach(criarSlide)
 
-carregarImagens()
-carregarSlides()
+document.querySelector(".pesquisa-container input")
+    .addEventListener('keypress', procurarImagens)
